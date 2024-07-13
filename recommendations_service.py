@@ -1,7 +1,7 @@
 """FastAPI-приложение для получения оффлайн- и онлайн-рекомендаций.
 
 Для запуска uvicorn выполнить команду в терминале, находясь корневой папке проекта:
-uvicorn recommendation_service:app
+uvicorn recommendations_service:app
 
 Для просмотра документации API и совершения тестовых запросов через 
 Swagger UI перейти в браузере по ссылке  http://127.0.0.1:8000/docs
@@ -102,20 +102,6 @@ async def lifespan(app: FastAPI):
 
 # создаём приложение FastAPI
 app = FastAPI(title="recommendations", lifespan=lifespan)
-
-
-'''
-# Начальная версия до переименования ф-ции recommendations в recommendations_offline
-@app.post("/recommendations")
-async def recommendations(user_id: int, k: int = 100):
-    """
-    Возвращает список рекомендаций длиной k для пользователя user_id
-    """
-
-    recs = rec_store.get(user_id, k)
-
-    return {"recs": recs}
-'''
 
 
 @app.post("/recommendations_offline")

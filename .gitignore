@@ -163,6 +163,7 @@ cython_debug/
 
 # data
 *.parquet
+*.par
 *.pickle
 
 # project environment

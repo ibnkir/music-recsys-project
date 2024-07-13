@@ -9,25 +9,8 @@ Swagger UI перейти в браузере по ссылке  http://127.0.0.
 Можно отправить запрос в терминале:
 curl http://127.0.0.1:8010/similar_items?user_id=17245&k=10
 
-
-Также для отправки запросов можно выполнить скрипт с использованием библиотеки requests:
-
-import requests
-
-features_store_url = "http://127.0.0.1:8010"
-
-headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-params = {"item_id": 17245}
-
-resp = requests.post(features_store_url +"/similar_items", headers=headers, params=params)
-if resp.status_code == 200:
-    similar_items = resp.json()
-else:
-    similar_items = None
-    print(f"status code: {resp.status_code}")
-    
-print(similar_items)
-
+Для отправки запросов пограммно с помощью библиотеки requests используйте 
+соответствующий скрипт в ноутбуке part_3_test.ipynb
 """
 
 import logging
@@ -40,6 +23,9 @@ logger = logging.getLogger("uvicorn.error")
 
 
 class SimilarItems:
+    """
+    Класс для поиска похожих айтемов, необходимых для генерации онлайн-рекомендаций
+    """
 
     def __init__(self):
 
@@ -84,7 +70,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# создаём приложение FastAPI
+# Создаём приложение FastAPI
 app = FastAPI(title="features", lifespan=lifespan)
 
 
