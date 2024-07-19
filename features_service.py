@@ -1,4 +1,4 @@
-"""FastAPI-приложение для получения онлайн-рекомендаций.
+"""FastAPI-приложение для получения онлайн-рекомендаций на основе похожих треков.
 
 Для запуска сервиса с помощью uvicorn выполните команду, находясь в корневой папке проекта:
 uvicorn features_service:app --port 8010
@@ -62,7 +62,7 @@ sim_items_store = SimilarItems()
 async def lifespan(app: FastAPI):
     # код ниже (до yield) выполнится только один раз при запуске сервиса
     sim_items_store.load(
-        'similar_items.parquet', 
+        'similar.parquet', 
         columns=["item_id_1", "item_id_2", "score"],
     )
     logger.info("Ready!")

@@ -9,7 +9,8 @@ Swagger UI перейти в браузере по ссылке  http://127.0.0.
 Можно отправить запрос в терминале:
 curl http://127.0.0.1:8000/recommendation?user_id=100&k=10
 
-Также для отправки запросов можно написать короткий скрипт с использованием библиотеки requests
+Для отправки запросов программно с помощью библиотеки requests используйте 
+соответствующий скрипт в ноутбуке part_3_test.ipynb
 """
 
 import logging
@@ -29,7 +30,6 @@ class Recommendations:
     """
     Класс для работы с оффлайн-рекомендациями
     """
-
     def __init__(self):
         self._recs = {"personal": None, "default": None}
         self._stats = {
@@ -41,7 +41,6 @@ class Recommendations:
         """
         Загружает рекомендации из файла
         """
-
         logger.info(f"Loading recommendations, type: {type}")
         self._recs[type] = pd.read_parquet(path, **kwargs)
         if type == "personal":
@@ -52,12 +51,25 @@ class Recommendations:
         """
         Возвращает список рекомендаций для пользователя
         """
-
         try:
             recs = self._recs["personal"].loc[user_id]
             recs = recs["item_id"].to_list()[:k]
             self._stats["request_personal_count"] += 1
         except KeyError:
+            recs = self._recs["default"]
+            recs = recs["item_id"].to_list()[:k]
+            self._stats["request_default_count"] += 1
+        except:
+            logger.error("No recommendations found")
+            recs = []
+
+        return recs
+
+    def get_default(self, k: int=100):
+        """
+        Возвращает список рекомендаций по умолчанию
+        """
+        try:
             recs = self._recs["default"]
             recs = recs["item_id"].to_list()[:k]
             self._stats["request_default_count"] += 1
@@ -85,12 +97,12 @@ async def lifespan(app: FastAPI):
     # Загружаем рекомендации из файлов
     rec_store.load(
         "personal",
-        'final_recommendations_feat.parquet',
+        'final_recommendations.parquet',
         columns=["user_id", "item_id", "rank"],
     )
     rec_store.load(
         "default",
-        'top_recs.parquet', 
+        'top_popular.parquet', 
         columns=["item_id", "rank"],
     )
 
@@ -109,43 +121,21 @@ async def recommendations_offline(user_id: int, k: int = 100):
     """
     Возвращает список оффлайн-рекомендаций длиной k для пользователя user_id
     """
-
     recs = rec_store.get(user_id, k)
-
     return {"recs": recs}
 
 
-'''
-# Начальная версия ф-ции recommendations_online: получаем рекомендации по 1 последнему событию
-@app.post("/recommendations_online")
-async def recommendations_online(user_id: int, k: int = 100):
+@app.post("/recommendations_default")
+async def recommendations_default(k: int = 100):
     """
-    Возвращает список онлайн-рекомендаций длиной k для пользователя user_id
+    Возвращает список рекомендаций по умолчанию длиной k
     """
-
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
-
-    # получаем последнее событие пользователя
-    params = {"user_id": user_id, "k": 1}
-    resp = requests.post(events_store_url + "/get", headers=headers, params=params)
-    events = resp.json()
-    events = events["events"]
-
-    # получаем список похожих объектов
-    if len(events) > 0:
-        item_id = events[0]
-        params = {"item_id": item_id, "k": k}
-        resp = requests.post(features_store_url +"/similar_items", headers=headers, params=params) 
-        item_similar_items = resp.json()
-        item_similar_items = item_similar_items['item_id_2']
-        recs = item_similar_items[:k]
-    else:
-        recs = []
-
+    recs = rec_store.get_default(k)
     return {"recs": recs}
-'''
 
-# Конечная версия recommendations_online: получаем рекомендации по 3-м последним событиям
+
+# Функции для онлайн-рекомендаций
+
 def dedup_ids(ids):
     """
     Дедублицирует список идентификаторов, оставляя только первое вхождение
@@ -154,6 +144,7 @@ def dedup_ids(ids):
     ids = [id for id in ids if not (id in seen or seen.add(id))]
 
     return ids
+
 
 @app.post("/recommendations_online")
 async def recommendations_online(user_id: int, k: int = 100):
@@ -180,7 +171,6 @@ async def recommendations_online(user_id: int, k: int = 100):
         scores += item_similar_items["score"]
     
     # сортируем похожие объекты по scores в убывающем порядке
-    # для старта это приемлемый подход
     combined = list(zip(items, scores))
     combined = sorted(combined, key=lambda x: x[1], reverse=True)
     combined = [item for item, _ in combined]
