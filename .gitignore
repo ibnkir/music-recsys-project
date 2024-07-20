@@ -171,3 +171,5 @@ env_recsys_start/
 
 # models
 models/
+
+catboost_info/
