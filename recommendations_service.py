@@ -6,9 +6,6 @@ uvicorn recommendations_service:app
 Для просмотра документации API и совершения тестовых запросов через 
 Swagger UI перейти в браузере по ссылке  http://127.0.0.1:8000/docs
 
-Можно отправить запрос в терминале:
-curl http://127.0.0.1:8000/recommendation?user_id=100&k=10
-
 Для отправки запросов программно с помощью библиотеки requests используйте 
 соответствующий скрипт в ноутбуке part_3_test.ipynb
 """
@@ -43,8 +40,6 @@ class Recommendations:
         """
         logger.info(f"Loading recommendations, type: {type}")
         self._recs[type] = pd.read_parquet(path, **kwargs)
-        if type == "personal":
-            self._recs[type] = self._recs[type].set_index("user_id")
         logger.info(f"Loaded")
 
     def get(self, user_id: int, k: int=100):
@@ -52,7 +47,7 @@ class Recommendations:
         Возвращает список рекомендаций для пользователя
         """
         try:
-            recs = self._recs["personal"].loc[user_id]
+            recs = self._recs["personal"].query('user_id == @user_id') 
             recs = recs["item_id"].to_list()[:k]
             self._stats["request_personal_count"] += 1
         except KeyError:
@@ -97,7 +92,7 @@ async def lifespan(app: FastAPI):
     # Загружаем рекомендации из файлов
     rec_store.load(
         "personal",
-        'final_recommendations.parquet',
+        "recommendations.parquet",
         columns=["user_id", "item_id", "rank"],
     )
     rec_store.load(

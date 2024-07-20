@@ -35,10 +35,9 @@ class SimilarItems:
         """
         Загружаем данные из файла
         """
-
         logger.info(f"Loading data, type: {type}")
         self._similar_items = pd.read_parquet(path, **kwargs) 
-        self._similar_items = self._similar_items.set_index('item_id_1')
+        #self._similar_items = self._similar_items.set_index('item_id_1')
         logger.info(f"Loaded")
 
     def get(self, item_id: int, k: int = 10):
@@ -46,7 +45,7 @@ class SimilarItems:
         Возвращает список похожих объектов
         """
         try:
-            i2i = self._similar_items.loc[item_id].head(k)
+            i2i = self._similar_items.query('item_id_1 == @item_id') #.loc[item_id].head(k)
             i2i = i2i[["item_id_2", "score"]].to_dict(orient="list")
         except KeyError:
             logger.error("No recommendations found")
@@ -79,7 +78,5 @@ async def recommendations(item_id: int, k: int = 10):
     """
     Возвращает список похожих объектов длиной k для item_id
     """
-
     i2i = sim_items_store.get(item_id, k)
-
     return i2i
