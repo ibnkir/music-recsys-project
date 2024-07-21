@@ -52,6 +52,11 @@ events_store = EventStore()
 app = FastAPI(title="events")
 
 
+@app.get("/")
+def read_root():
+    return {"message": "Events Service is working"}
+
+
 @app.post("/put")
 async def put(user_id: int, item_id: int):
     """

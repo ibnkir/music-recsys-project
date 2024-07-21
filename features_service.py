@@ -73,6 +73,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="features", lifespan=lifespan)
 
 
+@app.get("/")
+def read_root():
+    return {"message": "Features Service is working"}
+
+
 @app.post("/similar_items")
 async def recommendations(item_id: int, k: int = 10):
     """
