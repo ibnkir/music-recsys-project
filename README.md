@@ -50,9 +50,9 @@
     Чтобы не выполнять подготовительный код в Jupyter-ноутбуках и 
     сразу перейти к запуску и тестированию проекта, 
     можно скачать готовые файлы с рекомендациями
-    - Финальные рекомендации [recommendations.parquet](https://disk.yandex.ru/d/R1ULEtxD49lwCQ)
-    - Топ-треки [top_popular.parquet](https://disk.yandex.ru/d/r77Dj16hUuB6CA)
-    - Похожие треки [similar.parquet](https://disk.yandex.ru/d/uOb0ISU6lbDF8g)
+    - Финальные рекомендации [recommendations.parquet](https://disk.yandex.ru/d/QTuc5JxfzIdKjg)
+    - Топ-треки [top_popular.parquet](https://disk.yandex.ru/d/I1YXRqtM-iR6XQ)
+    - Похожие треки [similar.parquet](https://disk.yandex.ru/d/QytOSqKu1wHPoQ)
 
 ## Этапы и результаты выполнения проекта
 1. __Предобработка данных и EDA__
