@@ -47,6 +47,13 @@
     jupyter lab --ip=0.0.0.0 --no-browser
     ```
 
+5. Можно скачать файлы готовых рекомендаций и моделей
+    - Финальные рекомендации [recommendations.parquet](https://disk.yandex.ru/d/R1ULEtxD49lwCQ)
+    - Топ-треки для рекомендаций по умолчанию [top_popular.parquet](https://disk.yandex.ru/d/r77Dj16hUuB6CA)
+    - Похожие треки для i2i-рекомендаций [similar.parquet](https://disk.yandex.ru/d/uOb0ISU6lbDF8g)
+    - als-модель [als_model.pkl](https://disk.yandex.ru/d/FtJ733XSA68XUA)
+    - Ранжирующая catboost-модель [cb_model.cbm]()
+
 ## Этапы и результаты выполнения проекта
 1. __Предобработка данных и EDA__
     - Проверили исходные данные на наличие пропусков, дубликатов, а также некорректных типов, 
