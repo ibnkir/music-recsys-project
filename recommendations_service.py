@@ -46,16 +46,22 @@ class Recommendations:
         """
         Возвращает список рекомендаций для пользователя
         """
-        try:
+        
+        # Добавляем обработку исключений для общего случая
+        # (у нас все рекомендации должны быть обязательно загружены, без них сервис не запустится,
+        # поэтому KeyError можно не проверять)
+        try: 
             recs = self._recs["personal"].query('user_id == @user_id') 
-            recs = recs["item_id"].to_list()[:k]
-            self._stats["request_personal_count"] += 1
-        except KeyError:
-            recs = self._recs["default"]
-            recs = recs["item_id"].to_list()[:k]
-            self._stats["request_default_count"] += 1
-        except:
-            logger.error("No recommendations found")
+            if len(recs) > 0:
+                recs = recs["item_id"].to_list()[:k]
+                self._stats["request_personal_count"] += 1
+            else:
+                recs = self._recs["default"]
+                recs = recs["item_id"].to_list()[:k]
+                self._stats["request_default_count"] += 1
+        
+        except Exception as e:
+            logger.error(f"{e}, no recommendations found")
             recs = []
 
         return recs
@@ -64,12 +70,17 @@ class Recommendations:
         """
         Возвращает список рекомендаций по умолчанию
         """
+
+        # Добавляем обработку исключений для общего случая
+        # (у нас все рекомендации должны быть обязательно загружены, без них сервис не запустится,
+        # поэтому KeyError можно не проверять)
         try:
             recs = self._recs["default"]
             recs = recs["item_id"].to_list()[:k]
             self._stats["request_default_count"] += 1
-        except:
-            logger.error("No recommendations found")
+        
+        except Exception as e:
+            logger.error(f"{e}, no recommendations found")
             recs = []
 
         return recs
@@ -182,7 +193,8 @@ async def recommendations_online(user_id: int, k: int = 100):
 
 
 # Объединяем offline- и online-рекомендации (blending),
-# первые помещаем на четные места выходного списка, вторые - на четные
+# первые помещаем на четные места выходного списка (начиная с нулевой позиции), 
+# вторые - на нечетные
 @app.post("/recommendations")
 async def recommendations(user_id: int, k: int = 100):
     """
@@ -199,12 +211,15 @@ async def recommendations(user_id: int, k: int = 100):
 
     min_length = min(len(recs_offline), len(recs_online))
     offline_idx = online_idx = 0
+    
     # чередуем элементы из списков, пока позволяет минимальная длина
     for i in range(2 * min_length):
         if i % 2 == 0:
+            # Оффлайн-рекомендации на четных позициях (начиная с нулевой)
             recs_blended.append(recs_offline[offline_idx])
             offline_idx += 1
         else:
+            # Онлайн-рекомендации на нечетных позициях
             recs_blended.append(recs_online[online_idx])
             online_idx += 1
 
@@ -221,4 +236,3 @@ async def recommendations(user_id: int, k: int = 100):
     recs_blended = recs_blended[:k]
 
     return {"recs": recs_blended}
-
