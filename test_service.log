@@ -1,3 +1,7 @@
-2024-08-03 14:36:23,077 INFO test_service, lifespan, Started
-2024-08-03 14:36:39,401 INFO test_service, read_root, Test Service is working
-2024-08-03 14:37:21,904 INFO test_service, lifespan, Finished
+2024-08-03 19:40:29,896 INFO test_service, top_recs, top-10 popular tracks: [53404, 178529, 33311009, 35505245, 37384, 24692821, 795836, 6705392, 32947997, 45499814]
+2024-08-03 19:40:39,548 INFO test_service, offline_recs, 10 offline recommendations for user_id=617032: [32947997, 29544272, 18385776, 34976783, 26918469, 31219146, 31746480, 24663745, 30049955, 21497837]
+2024-08-03 19:40:47,627 INFO test_service, add_online, Successfully added item_id=99262 to user_id=617032 online history
+2024-08-03 19:40:59,470 INFO test_service, add_online, Successfully added item_id=590303 to user_id=617032 online history
+2024-08-03 19:41:06,188 INFO test_service, add_online, Successfully added item_id=597196 to user_id=617032 online history
+2024-08-03 19:41:17,652 INFO test_service, online_recs, 10 online recommendations for user_id=617032: [590413, 21101461, 590668, 590164, 21101463, 590262, 590692, 591001, 99245, 590326]
+2024-08-03 19:41:31,048 INFO test_service, blended_recs, 10 blended recommendations for user_id=617032: [32947997, 590413, 29544272, 21101461, 18385776, 590668, 34976783, 590164, 26918469, 21101463]

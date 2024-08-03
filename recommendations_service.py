@@ -1,6 +1,15 @@
-"""FastAPI-приложение для получения оффлайн- и онлайн-рекомендаций.
+"""
+Главное FastAPI-приложение для получения оффлайн- и онлайн-рекомендаций.
 
-Для запуска сервиса с помощью uvicorn выполните команду в терминале, находясь в корневой папке проекта:
+Основные обрабатываемые запросы:
+- /recommendations_default - получение рекомендаций по умолчанию из числа топ-треков,
+- /recommendations_offline - получение персональных рекомендаций только по оффлайн-истории пользователя,
+- /recommendations_online - получение персональных рекомендаций только по онлайн-истории пользователя,
+- /recommendations - получение смешанных рекомендаций по оффлайн- и онлайн-истории пользователя.
+
+Перед запуском сервиса убедитесь, что файлы recommendations.parquet и top_popular.parquet
+находятся в репозитории (см. файл README.md). Далее выполните команду в терминале, 
+находясь в корневой папке проекта:
 uvicorn recommendations_service:app
 
 Для тестирования используйте FastAPI-сервис test_service (см. файл test_service.py) или 
@@ -14,7 +23,7 @@ import pandas as pd
 import requests
 
 
-# Настраиваем логирование
+# Создаем логгер
 logger = logging.getLogger("uvicorn.error")
 
 # Задаем url-адреса двух вспомогательных сервисов
@@ -58,7 +67,6 @@ class Recommendations:
                 recs = self._recs["default"]
                 recs = recs["item_id"].to_list()[:k]
                 self._stats["request_default_count"] += 1
-        
         except Exception as e:
             logger.error(f"{e}, no recommendations found")
             recs = []
@@ -77,7 +85,6 @@ class Recommendations:
             recs = self._recs["default"]
             recs = recs["item_id"].to_list()[:k]
             self._stats["request_default_count"] += 1
-        
         except Exception as e:
             logger.error(f"{e}, no recommendations found")
             recs = []
@@ -121,7 +128,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="recommendations", lifespan=lifespan)
 
 
-# Обращение к корню для проверки работоспособности
+# Обращение к корневому url для проверки работоспособности сервиса
 @app.get("/")
 def read_root():
     return {"message": "Recommendations service is working"}
@@ -161,9 +168,9 @@ def dedup_ids(ids):
 
 # Получение онлайн-рекомендаций
 @app.post("/recommendations_online")
-async def recommendations_online(user_id: int, k: int = 100):
+async def recommendations_online(user_id: int, k: int = 50):
     """
-    Возвращает список онлайн-рекомендаций длиной k для пользователя user_id по его 3-м последним событиям
+    Возвращает список онлайн-рекомендаций длиной k для пользователя user_id по его 3-м последним онлайн-событиям
     """
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
 
@@ -190,7 +197,7 @@ async def recommendations_online(user_id: int, k: int = 100):
     combined = [item for item, _ in combined]
 
     # удаляем дубликаты, чтобы не выдавать одинаковые рекомендации
-    recs = dedup_ids(combined)
+    recs = dedup_ids(combined)[:k]
 
     return {"recs": recs}
 
