@@ -176,3 +176,6 @@ catboost_info/
 
 # Reviews from Yandex Practicum
 project_reviews/
+
+# Exclude the file from gitignore
+!test_service.log

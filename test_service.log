@@ -1,0 +1,3 @@
+2024-08-03 14:36:23,077 INFO test_service, lifespan, Started
+2024-08-03 14:36:39,401 INFO test_service, read_root, Test Service is working
+2024-08-03 14:37:21,904 INFO test_service, lifespan, Finished
