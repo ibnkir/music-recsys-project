@@ -1,13 +1,10 @@
 """FastAPI-приложение для получения оффлайн- и онлайн-рекомендаций.
 
-Для запуска сервиса с помощью uvicorn выполните команду в терминале, находясь корневой папке проекта:
+Для запуска сервиса с помощью uvicorn выполните команду в терминале, находясь в корневой папке проекта:
 uvicorn recommendations_service:app
 
-Для просмотра документации API и совершения тестовых запросов через 
-Swagger UI перейти в браузере по ссылке  http://127.0.0.1:8000/docs
-
-Для отправки запросов программно с помощью библиотеки requests используйте 
-соответствующий скрипт в ноутбуке part_3_test.ipynb
+Для тестирования используйте FastAPI-сервис test_service (см. файл test_service.py) или 
+скрипты в ноутбуке tests.ipynb
 """
 
 import logging
@@ -17,8 +14,10 @@ import pandas as pd
 import requests
 
 
+# Настраиваем логирование
 logger = logging.getLogger("uvicorn.error")
 
+# Задаем url-адреса двух вспомогательных сервисов
 features_store_url = "http://127.0.0.1:8010"
 events_store_url = "http://127.0.0.1:8020"
 
@@ -111,7 +110,7 @@ async def lifespan(app: FastAPI):
         'top_popular.parquet', 
         columns=["item_id", "rank"],
     )
-
+    logger.info("Ready!")
     yield
     # этот код выполнится только один раз при остановке сервиса
     rec_store.stats()
@@ -122,11 +121,13 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="recommendations", lifespan=lifespan)
 
 
+# Обращение к корню для проверки работоспособности
 @app.get("/")
 def read_root():
-    return {"message": "Recommendations Service is working"}
+    return {"message": "Recommendations service is working"}
 
 
+# Получение персональных рекомендаций пользователя только по его оффлайн-истории
 @app.post("/recommendations_offline")
 async def recommendations_offline(user_id: int, k: int = 100):
     """
@@ -136,6 +137,7 @@ async def recommendations_offline(user_id: int, k: int = 100):
     return {"recs": recs}
 
 
+# Получение рекомендаций по умолчанию из числа топ-треков
 @app.post("/recommendations_default")
 async def recommendations_default(k: int = 100):
     """
@@ -145,8 +147,9 @@ async def recommendations_default(k: int = 100):
     return {"recs": recs}
 
 
-# Функции для онлайн-рекомендаций
+# Функции для получения онлайн-рекомендаций
 
+# Вспомогательная функция
 def dedup_ids(ids):
     """
     Дедублицирует список идентификаторов, оставляя только первое вхождение
@@ -156,7 +159,7 @@ def dedup_ids(ids):
 
     return ids
 
-
+# Получение онлайн-рекомендаций
 @app.post("/recommendations_online")
 async def recommendations_online(user_id: int, k: int = 100):
     """
@@ -192,7 +195,7 @@ async def recommendations_online(user_id: int, k: int = 100):
     return {"recs": recs}
 
 
-# Объединяем offline- и online-рекомендации (blending),
+# Получение смешанных offline- и online-рекомендаций,
 # первые помещаем на четные места выходного списка (начиная с нулевой позиции), 
 # вторые - на нечетные
 @app.post("/recommendations")

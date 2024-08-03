@@ -54,7 +54,7 @@ app = FastAPI(title="events")
 
 @app.get("/")
 def read_root():
-    return {"message": "Events Service is working"}
+    return {"message": "Events service is working"}
 
 
 @app.post("/put")

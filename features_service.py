@@ -75,7 +75,7 @@ app = FastAPI(title="features", lifespan=lifespan)
 
 @app.get("/")
 def read_root():
-    return {"message": "Features Service is working"}
+    return {"message": "Features service is working"}
 
 
 @app.post("/similar_items")
