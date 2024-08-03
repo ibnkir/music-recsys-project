@@ -173,3 +173,6 @@ env_recsys_start/
 models/
 
 catboost_info/
+
+# Reviews from Yandex Practicum
+project_reviews/
