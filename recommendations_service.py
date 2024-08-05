@@ -7,13 +7,7 @@
 - /recommendations_online - получение персональных рекомендаций только по онлайн-истории пользователя,
 - /recommendations - получение смешанных рекомендаций по оффлайн- и онлайн-истории пользователя.
 
-Перед запуском сервиса убедитесь, что файлы recommendations.parquet и top_popular.parquet
-находятся в репозитории (см. файл README.md). Далее выполните команду в терминале, 
-находясь в корневой папке проекта:
-uvicorn recommendations_service:app
-
-Для тестирования используйте FastAPI-сервис test_service (см. файл test_service.py) или 
-скрипты в ноутбуке tests.ipynb
+Для запуска и тестирования см. инструкции в файле README.md
 """
 
 import logging
@@ -21,16 +15,24 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import pandas as pd
 import requests
+import configparser
 
 
 # Создаем логгер
 logger = logging.getLogger("uvicorn.error")
 
-# Задаем url-адреса двух вспомогательных сервисов
-features_store_url = "http://127.0.0.1:8010"
-events_store_url = "http://127.0.0.1:8020"
+# Создаем парсер конфигурационного файла
+config = configparser.ConfigParser()
+config.read("config.ini")  
+
+# Читаем url-адреса двух вспомогательных сервисов из конфигурационного файла
+# Вспомогательный сервис для получения рекомендаций по умолчанию на основе топ-треков
+features_store_url = config["urls"]["features_store_url"] # "http://127.0.0.1:8010"
+# Вспомогательный сервис для хранения и получения последних онлайн-событий пользователя
+events_store_url = config["urls"]["events_store_url"] # "http://127.0.0.1:8020"
 
 
+# Объявляем специальный класс для работы с оффлайн-рекомендациями
 class Recommendations:
     """
     Класс для работы с оффлайн-рекомендациями
