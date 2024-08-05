@@ -118,7 +118,8 @@ def blended_recs(user_id: int = 617032, k: int = 10):
 
 
 if __name__ == "__main__":
-    
+  
+    # Создаем парсер для чтения аргументов, передаваемых из командной строки при запуске файла
     parser = argparse.ArgumentParser()
     
     if len(sys.argv) == 1: 
