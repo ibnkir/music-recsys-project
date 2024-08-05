@@ -10,8 +10,7 @@
 Для запуска сервиса с помощью uvicorn выполните команду, находясь в корневой папке проекта:
 uvicorn events_service:app --port 8020
 
-Для тестирования используйте FastAPI-сервис test_service (см. файл test_service.py) или 
-скрипты в ноутбуке tests.ipynb
+Для запуска и тестирования см. инструкции в файле README.md
 """
 
 import pandas as pd
