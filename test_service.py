@@ -8,7 +8,7 @@
 - online_recs() - получение персональных рекомендаций только по онлайн-истории пользователя;
 - blended_recs() - получение смешанных персональных рекомендаций по оффлайн- и онлайн-истории пользователя;
 
-Инструкции по запуску сервисов и выполнению тестовых запросов находятся в файле README.md
+Для запуска и тестирования см. инструкции в файле README.md
 """
 
 import numpy as np
@@ -18,6 +18,7 @@ import json
 import logging
 import sys
 import argparse
+import configparser
 
 
 # Настраиваем логирование
@@ -32,14 +33,18 @@ logging.basicConfig(level=logging.INFO,
                               stream_handler])
 
 
-# Задаем url-адреса трех веб-сервисов
+# Создаем парсер конфигурационного файла
+config = configparser.ConfigParser()
+config.read("config.ini")  
 
+# Читаем url-адреса всех сервисов из конфигурационного файла
 # Основной сервис для получения оффлайн- и онлайн-рекомендаций
-recommendations_url = "http://127.0.0.1:8000"
+recommendations_url = config["urls"]["recommendations_url"] # "http://127.0.0.1:8000"
 # Вспомогательный сервис для получения рекомендаций по умолчанию на основе топ-треков
-features_store_url = "http://127.0.0.1:8010"
+features_store_url = config["urls"]["features_store_url"] # "http://127.0.0.1:8010"
 # Вспомогательный сервис для хранения и получения последних онлайн-событий пользователя
-events_store_url = "http://127.0.0.1:8020"
+events_store_url = config["urls"]["events_store_url"] # "http://127.0.0.1:8020"
+
 
 # Общий заголовок для всех http-запросов
 headers = {"Content-type": "application/json", "Accept": "text/plain"}
@@ -163,4 +168,3 @@ if __name__ == "__main__":
         
         else:
             logger.info(f"Error, wrong parameters")
-
